@@ -2,27 +2,36 @@ import { useEffect, useState } from "react";
 import weaterCall from "./api/weatherCall";
 import CardWeater from "./components/CardWeater";
 import Header from "./components/Header";
+import Spinner from "./components/Spinner";
 
 function App() {
-  const [Coordenadas, setCoordenadas] = useState("");
+  const [weatherForecast, setWeatherForecast] = useState({});
 
-  // useEffect(() => {
-  //   navigator.geolocation.getCurrentPosition(async (position) => {
-  //     setCoordenadas(
-  //       await weaterCall(position.coords.latitude, position.coords.longitude)
-  //     );
-  //   });
-  // }, []);
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      setWeatherForecast(
+        await weaterCall(position.coords.latitude, position.coords.longitude)
+      );
+    });
+  }, []);
 
   const setCity = async (lat, lon) => {
-    // setCoordenadas(await weaterCall(lat, lon));
-    console.log(lat, lon); // LOGS DATA FROM CHILD (My name is Dean Winchester... &)
+    setWeatherForecast(await weaterCall(lat, lon));
   };
 
   return (
     <div className="h-full">
       <Header func={setCity} />
-      <CardWeater Coordenadas={"Coordenadas"} />
+      <div className="text-center flex justify-center">
+        <p className="text-2xl font-bold">
+          {weatherForecast && weatherForecast.city ? (
+            weatherForecast.city.name
+          ) : (
+            <Spinner />
+          )}
+        </p>
+      </div>
+      <CardWeater weatherForecast={weatherForecast} />
     </div>
   );
 }
